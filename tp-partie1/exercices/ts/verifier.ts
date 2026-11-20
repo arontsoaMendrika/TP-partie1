@@ -4,7 +4,7 @@ import { romazava, libelleStatut } from './02-interfaces.ts';
 import type { Plat } from './02-interfaces.ts';
 import { formatPrix, rechercher, versNombre } from './03-fonctions.ts';
 import { premier, Depot } from './04-generiques.ts';
-import { estPlat, messageErreur, chargerPlats } from './05-async.ts';
+ import { estPlat, messageErreur, chargerPlats } from './05-async.ts';
 
 const plats: Plat[] = [
   romazava,

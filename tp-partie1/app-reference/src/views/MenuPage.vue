@@ -40,11 +40,12 @@
           detail="false"
         >
           <ion-label>
-            <h2>{{ plat.nom }}</h2>
+            <h2>{{ plat.libelle }}</h2>
             <p>{{ plat.description }}</p>
             <p>
               <ion-text color="primary"><strong>{{ formatAriary(plat.prix) }}</strong></ion-text>
               <ion-badge v-if="!plat.disponible" color="medium" class="epuise">Épuisé</ion-badge>
+              <!-- <ion-badge v-if="!plat.disponnible" color="medium" class="epuise">Épuisé</ion-badge> -->
             </p>
           </ion-label>
           <ion-button
@@ -89,7 +90,7 @@ const { ajouter } = usePanier();
 
 const platsFiltres = computed(() => {
   const mot = recherche.value.trim().toLowerCase();
-  return plats.value.filter((p) => p.nom.toLowerCase().includes(mot));
+  return plats.value.filter((p) => p.libelle.toLowerCase().includes(mot));
 });
 
 async function charger() {
@@ -114,7 +115,7 @@ async function rafraichir(event) {
 async function ajouterAuPanier(plat) {
   ajouter(plat);
   const toast = await toastController.create({
-    message: `${plat.nom} ajouté au panier`,
+    message: `${plat.libelles} ajouté au panier`,
     duration: 1500,
     position: 'top',
     color: 'secondary',

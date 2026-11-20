@@ -21,6 +21,7 @@
         <ion-card-content>
           <p>{{ plat.description }}</p>
           <h2 class="prix">{{ formatAriary(plat.prix) }}</h2>
+          <!-- <p v-if="riz">Avec du riz : {{ formatAriary(plat.prix + riz.prix) }}</p> -->
           <ion-badge v-if="!plat.disponible" color="medium">Épuisé</ion-badge>
         </ion-card-content>
       </ion-card>
@@ -49,14 +50,15 @@ import { usePanier } from '@/composables/usePanier';
 const route = useRoute();
 const ionRouter = useIonRouter();
 const { ajouter } = usePanier();
-const riz = ref(null)
 
 const plat = ref(null);
 const erreur = ref(null);
+// const riz = ref(null);
 
 onMounted(async () => {
   try {
     plat.value = await api.getPlat(route.params.id);
+    // riz.value = await api.getPlat(7);
   } catch (e) {
     erreur.value = e.statut === 404 ? "Ce plat n'existe pas." : "Impossible de charger le plat.";
   }
