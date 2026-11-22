@@ -18,7 +18,7 @@
         <ion-item v-for="ligne in lignes" :key="ligne.plat.id">
           <ion-label>
             <h2>{{ ligne.plat.nom }}</h2>
-            <p>{{ formatAriary(ligne.plat.prix) }} × {{ ligne.quantite }}</p>
+            <p>{{ formatAriary(Number(ligne.plat.prix)) }} × {{ ligne.quantite }}</p>
           </ion-label>
           <ion-button slot="end" fill="clear" @click="changerQuantite(ligne.plat.id, -1)">
             <ion-icon slot="icon-only" :icon="removeCircleOutline" />
@@ -44,7 +44,7 @@
   </ion-page>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonText,
   IonButtons, IonButton, IonList, IonItem, IonLabel, IonIcon,
@@ -54,7 +54,7 @@ import { addCircleOutline, removeCircleOutline } from 'ionicons/icons';
 import { usePanier } from '@/composables/usePanier';
 import { formatAriary } from '@/utils/format';
 import { ref } from 'vue';
-import api from '@/services/api';
+import api, {ErreurAPI} from '@/services/api';
 
 const { lignes, changerQuantite, vider, total } = usePanier();
 const ionRouter = useIonRouter();
@@ -91,7 +91,6 @@ async function envoyer(){
      const cree =await api.creerCommande(commande);
      vider();
      table.value='';
-
      const toast = await toastController.create({
         message: `Commande n° ${cree.id} envoyée`,
         duration:2000, position: 'top',color: 'success',
@@ -99,12 +98,13 @@ async function envoyer(){
       await toast.present();
       ionRouter.navigate('/tabs/commandes','forward','replace');
   }catch(e){
-    console.log(e.statut,e.message,e.details);
-       if(e.statut === 422 && e.details.table){
+    // console.log(e.statut,e.message,e.details);
+       if(e instanceof ErreurAPI && e.statut === 422 && e.details.table){
          erreurTable.value= e.details.table;
        }else{
+          const message = e instanceof ErreurAPI ? e.message : 'Erreur inconnue';
           const toast=await toastController.create({
-            message: e.message,
+            message: message,
             duration: 2000, position:'top',color:'danger',
           });
           await toast.present();

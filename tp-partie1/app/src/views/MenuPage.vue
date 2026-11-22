@@ -43,9 +43,9 @@
           <ion-label>
             <h2>{{ plat.nom }}</h2>
             <p>{{ plat.description }}</p>
-            <p>{{ plat.categorie.nom }}</p>
+            <p>{{ plat.categorie?.nom }}</p>
           </ion-label>
-          <ion-text color="primary" style="font-weight: bold;">{{ formatAriary(plat.prix) }}</ion-text>
+          <ion-text color="primary" style="font-weight: bold;">{{ formatAriary(Number(plat.prix)) }}</ion-text>
           <ion-badge v-if="!plat.disponible" color="secondary">Épuisé</ion-badge>
           <ion-button slot="end" fill="clear" :disabled="!plat.disponible"
             @click.stop.prevent="ajouterAuPanier(plat)">
@@ -57,7 +57,7 @@
   </ion-page>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted , computed } from 'vue';
 // import {onUnmounted} from 'vue';
 import {
@@ -70,6 +70,8 @@ import api from '@/services/api';
 import { formatAriary } from '@/utils/format';
 import { addCircleOutline } from 'ionicons/icons';
 import { usePanier } from '@/composables/usePanier';
+import type { Categorie,Plat } from '@/types/gargote';
+import type { RefresherCustomEvent } from '@ionic/vue';
 // import { useIonRouter } from '@ionic/vue';
 
 // const ionRouter = useIonRouter();
@@ -82,11 +84,11 @@ import { usePanier } from '@/composables/usePanier';
 // onIonViewWillEnter(() => console.log('MENU ionViewWillEnter'));
 // onIonViewDidLeave(() => console.log('MENU ionViewDidLeave'));
 
-const plats = ref([]);
+const plats = ref<Plat[]>([]);
 const chargement = ref(true);
-const erreur = ref(null);
+const erreur = ref<string | null>(null);
 const recherche= ref('');
-const categories =ref([]);
+const categories =ref<Categorie[]>([]);
 const categorieChoisie= ref('toutes');
 
 
@@ -106,7 +108,12 @@ async function charger() {
   try {
     const categorieId = 
     categorieChoisie.value === 'toutes' ? undefined : categorieChoisie.value;
-    plats.value = await api.getPlats(categorieId);
+    if(categorieChoisie.value === 'toutes'){
+      plats.value = await api.getPlats();
+    }
+    else{
+      plats.value = await api.getPlats(Number(categorieId));
+    }
   } catch (e) {
     erreur.value = "Impossible de joindre l'API. Est-elle lancée ?";
     console.error(e);
@@ -117,7 +124,7 @@ async function charger() {
 
 const { ajouter } = usePanier();
 
-async function ajouterAuPanier(plat) {
+async function ajouterAuPanier(plat:Plat) {
   ajouter(plat);
   const toast = await toastController.create({
     message: `${plat.nom} ajouté au panier`,
@@ -126,7 +133,7 @@ async function ajouterAuPanier(plat) {
   await toast.present();
 }
 
-async function rafraichir(event) {
+async function rafraichir(event:RefresherCustomEvent) {
   await charger();
   event.target.complete();
 }

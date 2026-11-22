@@ -22,7 +22,7 @@
             <h2>Commande n°{{ c.id }} · Table {{  c.table }}</h2>       
             <p>{{ formatDate(c.date) }}</p>                         
             <p>{{ c.lignes.map((l) => `${l.nom} × ${l.quantite}`).join(', ') }}</p>  
-            <p><strong>{{ formatAriary(c.total) }}</strong></p>       
+            <p><strong>{{ formatAriary(Number(c.total)) }}</strong></p>       
           </ion-label>
           <ion-badge slot="end" color="warning">{{ c.statut }}</ion-badge> 
         </ion-item>
@@ -31,7 +31,7 @@
   </ion-page>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonText,
@@ -40,8 +40,10 @@ import {
 } from '@ionic/vue';
 import api from '@/services/api';
 import { formatAriary, formatDate } from '@/utils/format';
+import type { Commande } from '@/types/gargote';
+import type { RefresherCustomEvent } from '@ionic/vue';
 
-const commandes = ref([]);                  
+const commandes = ref<Commande[]>([]);                  
 
 async function charger() {
   try {
@@ -51,7 +53,7 @@ async function charger() {
   }
 }
 
-async function rafraichir(event) {
+async function rafraichir(event:RefresherCustomEvent) {
   await charger();                            
   event.target.complete();                       
 }
